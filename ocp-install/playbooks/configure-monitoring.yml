@@ -1,0 +1,64 @@
+---
+- hosts: infras
+  gather_facts: no
+  tasks:
+    - block:
+        - name: Add infra label
+          k8s: 
+            state: present
+            context: "{{ ocp_cluster_name }}"
+            definition:
+              apiVersion: v1
+              kind: Node
+              metadata:
+                name: "{{ inventory_hostname }}"
+                labels:
+                  node-role.kubernetes.io/infra: ""                 
+      delegate_to: localhost
+- hosts: masters[0]
+  gather_facts: no
+  tasks:
+    - block:
+        - name: Create logging namespace
+          k8s:
+            state: present
+            context: "{{ ocp_cluster_name }}"
+            definition: "{{ lookup('file','../files/logging/namespace.yml') }}"
+        - name: Create logging elasticsearch OperatorGroup      
+          k8s:
+            state: present
+            context: "{{ ocp_cluster_name }}"            
+            definition: "{{ lookup('file','../files/logging/el-operatorgroup.yml') }}"
+        - name: Create logging cluster-logging OperatorGroup
+          k8s:
+            state: present
+            context: "{{ ocp_cluster_name }}"            
+            definition: "{{ lookup('file','../files/logging/clo-operatorgroup.yml') }}"
+        - name: Create logging subscription
+          k8s:
+            state: present
+            context: "{{ ocp_cluster_name }}"            
+            definition: "{{ lookup('file','../files/logging/subscription.yml') }}"
+        - name: Create logging RBAC      
+          k8s:
+            state: present
+            context: "{{ ocp_cluster_name }}"            
+            definition: "{{ lookup('file','../files/logging/rbac.yml') }}"        
+        - name: Create logging CLO subscriptions
+          k8s:
+            state: present
+            context: "{{ ocp_cluster_name }}"            
+            definition: "{{ lookup('file','../files/logging/clo-subscription.yml') }}"
+        - name: Deploy cluster-logging      
+          k8s:
+            state: present
+            context: "{{ ocp_cluster_name }}"            
+            definition: "{{ lookup('file','../files/logging/clo-crd.yml') }}"
+          tags: logging-cr
+        - name: Deploy monitoring onto support nodes
+          k8s:
+            state: present
+            context: "{{ ocp_cluster_name }}"            
+            definition: "{{ lookup('file','../files/monitoring/monitoring.yml') }}"
+          tags: logging-cr
+      delegate_to: localhost

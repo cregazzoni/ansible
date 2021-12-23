@@ -1,0 +1,15 @@
+---
+- hosts: masters[0]
+  gather_facts: no
+  tasks:
+    - block:
+        - name: Create mco
+          k8s:
+            state: present
+            context: "{{ ocp_cluster_name }}"
+            definition: "{{ lookup('file','../files/mco/{{ item }}.yml') }}"
+          with_items:
+            - storage
+            - infra
+            - support
+      delegate_to: localhost

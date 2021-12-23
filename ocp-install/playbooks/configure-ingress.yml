@@ -1,0 +1,63 @@
+---
+- hosts: support
+  gather_facts: no
+  tasks:
+    - block:
+        - name: Add support label
+          k8s: 
+            state: present
+            validate_certs: false
+            context: "{{ ocp_cluster_name }}"
+            definition:
+              apiVersion: v1
+              kind: Node
+              metadata:
+                name: "{{ inventory_hostname }}"
+                labels:
+                  node-role.kubernetes.io/support: ""                 
+
+      delegate_to: localhost
+- hosts: masters[0]
+  gather_facts: no
+  vars_files:
+    - ../vault.yml
+  tasks:
+    - block:
+        - set_fact:
+            ssl_cert_path: "../files/ssl/{{ ocp_cluster_name }}/cert.crt"
+          tags: certs
+        - name: Create certs secrets
+          k8s:
+            state: present
+            context: "{{ ocp_cluster_name }}"
+            definition:
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: certs
+                namespace: openshift-ingress
+              type: kubernetes.io/tls
+              stringData:
+                tls.key: "{{ ocp_wildcard_certificate_keys[ocp_cluster_name] }}"
+                tls.crt: "{{ lookup('file',ssl_cert_path) }}"
+          tags: certs
+        - name: Add certs to operator
+          k8s:
+            state: present
+            context: "{{ ocp_cluster_name }}"
+            definition:
+              apiVersion: operator.openshift.io/v1
+              kind: IngressController
+              metadata:
+                name: default
+                namespace: openshift-ingress-operator
+              spec:
+                nodePlacement:
+                  nodeSelector:
+                    matchLabels:
+                      node-role.kubernetes.io/support: ""
+                defaultCertificate:
+                  name: certs
+          tags: certs          
+      delegate_to: localhost
+      

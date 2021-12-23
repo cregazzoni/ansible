@@ -1,0 +1,42 @@
+---
+- hosts: workers,infras,storage,support
+  gather_facts: false
+  vars_files:
+    - ../vault.yml
+  pre_tasks:
+    - name: Gather worker.b64 from the bastion
+      slurp:
+        path: "{{ environment_path }}/{{ environment_name }}/worker.64"
+      register: append_bootstrap
+      delegate_to: "{{ groups['bastion'][0] }}"
+    - name: set facts
+      set_fact:
+        append_bootstrap_base64: "{{ append_bootstrap.content | b64decode }}"
+  roles:
+    - role: ocp-vm-provision
+      vars:
+        ignition_data: "{{ append_bootstrap_base64 }}"
+- hosts: workers[0]
+  gather_facts: false
+  vars_files:
+    - ../vault.yml
+  tasks:
+    - name: Create anti-affinity rule
+      vmware_vm_vm_drs_rule:
+        hostname: "{{ vcenter_provision_hostname }}"
+        username: "{{ vcenter_provision_username }}"
+        password: "{{ vcenter_provision_password }}"
+        cluster_name: "{{ vcenter_provision_cluster }}"
+        validate_certs: no
+        vms: "{{ groups[item] | default([]) | map('extract', hostvars, ['inventory_hostname_short']) | list }}"
+        drs_rule_name: "{{ ocp_cluster_name }}-{{ item }}"
+        mandatory: yes
+        affinity_rule: no
+        enabled: yes
+      with_items:
+        - infras
+        - workers
+        - storage
+        - support
+      tags: affinity
+      delegate_to: localhost

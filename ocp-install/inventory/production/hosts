@@ -1,0 +1,74 @@
+[ocp:vars]
+
+environment_path = "/ocp"
+environment_name = "prod"
+
+ocp_reinstall = "false"
+
+ocp_version = "4.2.16"
+ocp_installer_url = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/{{ ocp_version }}/openshift-install-linux-{{ ocp_version }}.tar.gz"
+ocp_client_url = "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/{{ ocp_version }}/openshift-client-linux-{{ ocp_version }}.tar.gz"
+
+ocp_domain = msccruises.com
+ocp_cluster_name = ocpdc-ch-prod
+ocp_vcenter_hostname = "chgvavmvc01.msccruises.com"
+ocp_vcenter_username = "chvmocpsvc@msccruises.com"
+#ocp_vcenter_password = "{{ }}"
+ocp_vcenter_datacenter = "CHGVAPDC"
+ocp_vcenter_datastore = 'GVA_VMs_OCP_PROD'
+ocp_pull_secret = '{"auths":{"chocplabmg01.ocpdc-ch-lab.msccruises.com:5050":{"auth":"cHJvdmlzaW9uOnBhc3N3b3Jk","email":"provision@msccruises.com"},"cloud.openshift.com":{"auth":"b3BlbnNoaWZ0LXJlbGVhc2UtZGV2K21zY2NydWlzZXMxc2x4c3E1OG42d3dteWFwamtxYzlsa2ZjbWo6QkRZUEw0VFREVU1WM1VZMFhHNE1SNENBVEM1SkM4UFRZSDNSS09JSUdQOFdRQUczNURYRDJNTlFONzRFOElDMA==","email":"antonio.castagnuozzo@msccruises.com"},"quay.io":{"auth":"b3BlbnNoaWZ0LXJlbGVhc2UtZGV2K21zY2NydWlzZXMxc2x4c3E1OG42d3dteWFwamtxYzlsa2ZjbWo6QkRZUEw0VFREVU1WM1VZMFhHNE1SNENBVEM1SkM4UFRZSDNSS09JSUdQOFdRQUczNURYRDJNTlFONzRFOElDMA==","email":"antonio.castagnuozzo@msccruises.com"},"registry.connect.redhat.com":{"auth":"NTIyNDkxMXx1aGMtMVNMWHNxNThuNnd3bVlhUEpLcWM5bGtmQ21KOmV5SmhiR2NpT2lKU1V6VXhNaUo5LmV5SnpkV0lpT2lKa1pHVTVOMkptT0RFME1XWTBNMk0wWVdGa05qRTJPREJoWTJFM01HRTRNU0o5LkNfQzZkT3dQZHp2UnRkRDRCdVRXRzIxdjdoMnFaZG9PcUx4N0VTMEZPdHBWakZsT0dYRG1halJMclpHRXpnRDlIb2Z4Q2ZKbkhzRzRsZ3VabGY1cE1pYjFseWp3MFhMWXdvTUh2YzFoSkhFMWItbkxvR1o5aUhKRTZsNnRPZXBhZmZIX0xCdDEtTnBYcHU0QVFyUGZiWGtJSFpYOFNqV3BOb2ZpYW1lN1htclhSODN3VlZvMC1KNDA5d2doU1FVZmM4eUIwbHpVd0w3eEUyZUdzSjhRVUUzOEczYlRqRmpSbDBLMnJRbnp3Mnc2dDNqNEt4aVFaWXIwZ0tWM1pxM2ZzWmFpRWZjSEpYa241Tk9qcUpCamJqc3RoWHZBNnpOS2FUbHlUMkJpSGtldXNmaHhXcGVmdC1kaXdsa2NwWXpKWGtxS3c2SmVBNFZOamM3Si1nV19IUktSV2wzUTlnMGtDdVR4aTdpS080bmU1QkF3NFhSS3dUU2dzS3lVdHN1MDh6VGVJMWRSaUxpLWhoMmpwRl9JZVB2UmRLTFlZeGhrZXRxVzZEbDNUTkcwRnROSmplZGg1R1RMMVVGV0pqcXpUMmpLaHg0NV8teXpJb2tMU194YzdCM3hQa3E4RWNyQlZCS2pScmIxR1JCczFleERuamt2TTRaMWFiWk1LSXYtUENPc3lIclhMaXQ0SFQ3X1daeHRncFY4bDNsajFjYTN2eVp3TkNyYWgyczBQenJ2X3l2QU5XRHU1dEhkazVTQ1JWelRkS1otYi1hVUQ1dGpObjRmbnJVOGwydmJzbm5RcVRxMTNGMTB2N3V5S0NWWURsOUR5dWdpSGdCSWp3c3BUcUdjbjNrbG52N1dQRXNqNWNtSnZKSDhzTEdaeTZnS0JRb2FNcy1QMURB","email":"antonio.castagnuozzo@msccruises.com"},"registry.redhat.io":{"auth":"NTIyNDkxMXx1aGMtMVNMWHNxNThuNnd3bVlhUEpLcWM5bGtmQ21KOmV5SmhiR2NpT2lKU1V6VXhNaUo5LmV5SnpkV0lpT2lKa1pHVTVOMkptT0RFME1XWTBNMk0wWVdGa05qRTJPREJoWTJFM01HRTRNU0o5LkNfQzZkT3dQZHp2UnRkRDRCdVRXRzIxdjdoMnFaZG9PcUx4N0VTMEZPdHBWakZsT0dYRG1halJMclpHRXpnRDlIb2Z4Q2ZKbkhzRzRsZ3VabGY1cE1pYjFseWp3MFhMWXdvTUh2YzFoSkhFMWItbkxvR1o5aUhKRTZsNnRPZXBhZmZIX0xCdDEtTnBYcHU0QVFyUGZiWGtJSFpYOFNqV3BOb2ZpYW1lN1htclhSODN3VlZvMC1KNDA5d2doU1FVZmM4eUIwbHpVd0w3eEUyZUdzSjhRVUUzOEczYlRqRmpSbDBLMnJRbnp3Mnc2dDNqNEt4aVFaWXIwZ0tWM1pxM2ZzWmFpRWZjSEpYa241Tk9qcUpCamJqc3RoWHZBNnpOS2FUbHlUMkJpSGtldXNmaHhXcGVmdC1kaXdsa2NwWXpKWGtxS3c2SmVBNFZOamM3Si1nV19IUktSV2wzUTlnMGtDdVR4aTdpS080bmU1QkF3NFhSS3dUU2dzS3lVdHN1MDh6VGVJMWRSaUxpLWhoMmpwRl9JZVB2UmRLTFlZeGhrZXRxVzZEbDNUTkcwRnROSmplZGg1R1RMMVVGV0pqcXpUMmpLaHg0NV8teXpJb2tMU194YzdCM3hQa3E4RWNyQlZCS2pScmIxR1JCczFleERuamt2TTRaMWFiWk1LSXYtUENPc3lIclhMaXQ0SFQ3X1daeHRncFY4bDNsajFjYTN2eVp3TkNyYWgyczBQenJ2X3l2QU5XRHU1dEhkazVTQ1JWelRkS1otYi1hVUQ1dGpObjRmbnJVOGwydmJzbm5RcVRxMTNGMTB2N3V5S0NWWURsOUR5dWdpSGdCSWp3c3BUcUdjbjNrbG52N1dQRXNqNWNtSnZKSDhzTEdaeTZnS0JRb2FNcy1QMURB","email":"antonio.castagnuozzo@msccruises.com"}}}'
+ocp_bastion_hostname = "chocplabmg01.ocpdc-ch-lab.msccruises.com"
+#ocp_registry_mirror = "chocplabmg01.ocpdc-ch-lab.msccruises.com:5050/ocp4/openshift4"
+
+vcenter_provision_hostname="{{ ocp_vcenter_hostname }}"
+vcenter_provision_username="chvmocpsvc@msccruises.com"
+vcenter_provision_password="{{ ocp_vcenter_password }}"
+vcenter_provision_datacenter="{{ ocp_vcenter_datacenter }}"
+vcenter_provision_cluster="CHGVACLU03"
+vcenter_provision_folder="ocpdc-ch-prod"
+vcenter_provision_network_name="OCP-SRV-PROD-1"
+vcenter_provision_datastore="GVA_VMs_OCP_PROD"
+vcenter_provision_default_rhcos_template = "rhcos-4.2"
+vcenter_provision_custom_attributes='[{"name":"AOM","value":"NO"},{"name":"APP ENV", "value":"PRODUCTION","Owner":"Deepak Chathoth Deepak"}]'
+
+
+
+
+[ocp:children]
+bastion
+bootstrap
+masters
+workers
+infras
+storage
+support
+
+[bastion]
+"chocpprdmg01.ocpdc-ch-lab.msccruises.com" ansible_host=172.16.148.106 ansible_user=ansible ram=4G cpu=1 ansible_ssh_common_args='-o ProxyCommand="ssh -W %h:%p -q 172.16.58.37"'
+#ansible_port=2222 
+
+[bootstrap]
+chocpprdbs01.ocpdc-ch-prod.msccruises.com cpu=8 ram=16 mac="00:50:56:a4:8e:58" vcenter_provision_custom_attributes_additional='[{"name":"APP NAME","value":"OCP 4.2 Bootstrap"}]'
+
+[masters]
+chocpprdms01.ocpdc-ch-prod.msccruises.com cpu=4 ram=16 mac="00:50:56:a4:0b:66" vcenter_provision_custom_attributes_additional='[{"name":"APP NAME","value":"OCP 4.2 Control Plane 1"}]'
+chocpprdms02.ocpdc-ch-prod.msccruises.com cpu=4 ram=16 mac="00:50:56:a4:c2:ff" vcenter_provision_custom_attributes_additional='[{"name":"APP NAME","value":"OCP 4.2 Control Plane 2"}]'
+chocpprdms03.ocpdc-ch-prod.msccruises.com cpu=4 ram=16 mac="00:50:56:a4:de:e8" vcenter_provision_custom_attributes_additional='[{"name":"APP NAME","value":"OCP 4.2 Control Plane 3"}]'
+
+[workers]
+chocpprdnd01.ocpdc-ch-prod.msccruises.com cpu=8 ram=32 mac="00:50:56:a4:2a:67" vcenter_provision_custom_attributes_additional='[{"name":"APP NAME","value":"OCP 4.2 Worker 1"}]' region="east"
+chocpprdnd02.ocpdc-ch-prod.msccruises.com cpu=8 ram=32 mac="00:50:56:a4:4f:0c" vcenter_provision_custom_attributes_additional='[{"name":"APP NAME","value":"OCP 4.2 Worker 2"}]' region="west"
+chocpprdnd03.ocpdc-ch-prod.msccruises.com cpu=8 ram=32 mac="00:50:56:a4:66:f4" vcenter_provision_custom_attributes_additional='[{"name":"APP NAME","value":"OCP 4.2 Worker 3"}]' region="north"
+
+[infras]
+chocpprdif01.ocpdc-ch-prod.msccruises.com cpu=4 ram=8 mac="00:50:56:a4:e9:95" vcenter_provision_custom_attributes_additional='[{"name":"APP NAME","value":"OCP 4.2 Infra 1"}]'
+chocpprdif02.ocpdc-ch-prod.msccruises.com cpu=4 ram=8 mac="00:50:56:a4:07:83" vcenter_provision_custom_attributes_additional='[{"name":"APP NAME","value":"OCP 4.2 Infra 2"}]'
+
+[storage]
+chocpprdst01.ocpdc-ch-prod.msccruises.com cpu=16 ram=64 mac="00:50:56:a4:3f:ce" vcenter_provision_custom_attributes_additional='[{"name":"APP NAME","value":"OCP 4.2 Storage 1"}]'
+chocpprdst02.ocpdc-ch-prod.msccruises.com cpu=16 ram=64 mac="00:50:56:a4:1e:7b" vcenter_provision_custom_attributes_additional='[{"name":"APP NAME","value":"OCP 4.2 Storage 2"}]'
+chocpprdst03.ocpdc-ch-prod.msccruises.com cpu=16 ram=64 mac="00:50:56:a4:f5:9f" vcenter_provision_custom_attributes_additional='[{"name":"APP NAME","value":"OCP 4.2 Storage 3"}]'
+
+[support]
+chocpprdsp01.ocpdc-ch-prod.msccruises.com cpu=8 ram=32 mac="00:50:56:a4:1c:1c" vcenter_provision_custom_attributes_additional='[{"name":"APP NAME","value":"OCP 4.2 Support 1"}]'
+chocpprdsp02.ocpdc-ch-prod.msccruises.com cpu=8 ram=32 mac="00:50:56:a4:65:40" vcenter_provision_custom_attributes_additional='[{"name":"APP NAME","value":"OCP 4.2 Support 2"}]'

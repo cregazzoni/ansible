@@ -1,0 +1,36 @@
+- hosts: masters[0]
+  gather_facts: no
+  vars_files:
+    - '../vault.yml'
+  tasks:
+    - block:
+        - name: Create dynatrace namespace
+          k8s:
+            state: present
+            definition: "{{ lookup('file','../files/dynatrace/namespace.yml') }}"
+        - name: Create dynatrace operator group
+          k8s:
+            state: present
+            definition: "{{ lookup('file','../files/dynatrace/operatorgroup.yml') }}"
+        - name: Create dynatrace operator subscription
+          k8s:
+            state: present
+            definition: "{{ lookup('file','../files/dynatrace/subscription.yml') }}"
+        - name: Create dynatrace secret
+          k8s:
+            state: present
+            definition:
+              kind: Secret
+              apiVersion: v1
+              type: Opaque
+              metadata:
+                name: oneagent
+                namespace: dynatrace
+              stringData:
+                apiToken: "{{ dynatrace_credentials[ocp_cluster_name].api_token }}"
+                paasToken: "{{ dynatrace_credentials[ocp_cluster_name].paas_token }}"
+        - name: Create dynatrace instance
+          k8s:
+            state: present
+            definition: "{{ lookup('file','../files/dynatrace/instance.yml') }}"
+      delegate_to: localhost

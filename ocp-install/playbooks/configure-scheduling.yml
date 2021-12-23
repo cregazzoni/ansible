@@ -1,0 +1,19 @@
+---
+- hosts: masters[0]
+  gather_facts: no
+  tasks:
+    - block:
+        - name: Configure Scheduler
+          k8s: 
+            state: present
+            context: "{{ ocp_cluster_name }}"
+            definition:
+              apiVersion: config.openshift.io/v1
+              kind: Scheduler
+              metadata:
+                name: cluster
+              spec:
+                defaultNodeSelector: type=worker
+                policy:
+                    name: scheduler-policy
+      delegate_to: localhost

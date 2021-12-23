@@ -1,0 +1,24 @@
+apiVersion: config.openshift.io/v1
+kind: OAuth
+metadata:
+  name: cluster
+spec:
+  identityProviders:
+  - name: ActiveDirectory
+    mappingMethod: claim 
+    type: LDAP
+    ldap:
+      attributes:
+        id: 
+        - dn
+        email: 
+        - mail
+        name: 
+        - displayName
+        preferredUsername: 
+        - sAMAccountName
+      bindDN: "CN=LdapQuerySvc,OU=administrators,OU=Users,OU=Geneva,OU=_Switzerland,DC=msccruises,DC=com" 
+      bindPassword: 
+        name: ldap-secret
+      insecure: true
+      url: "ldap://chgvasrv000.msccruises.com:389/dc=msccruises,dc=com?sAMAccountName?sub?(objectclass=user)"

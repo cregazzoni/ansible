@@ -1,0 +1,18 @@
+---
+- hosts: bootstrap
+  gather_facts: false
+  vars_files:
+    - ../vault.yml
+  pre_tasks:
+    - name: Gather append-bootstrap.b64 from the bastion
+      slurp:
+        path: "{{ environment_path }}/{{ environment_name }}/append-bootstrap.64"
+      register: append_bootstrap
+      delegate_to: "{{ groups['bastion'][0] }}"
+    - name: set facts
+      set_fact:
+        append_bootstrap_base64: "{{ append_bootstrap.content | b64decode }}"
+  roles:
+    - role: ocp-vm-provision
+      vars:
+        ignition_data: "{{ append_bootstrap_base64 }}"

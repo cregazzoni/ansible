@@ -1,0 +1,43 @@
+---
+- hosts: masters[0]
+  gather_facts: no
+  vars_files:
+    - ../vault.yml
+  tasks:
+    - block:
+        - name: Create PVC
+          k8s:
+            state: present
+            context: "{{ ocp_cluster_name }}"
+            definition:
+              apiVersion: v1
+              kind: PersistentVolumeClaim
+              metadata:
+                name: registry-pvc
+                namespace: openshift-image-registry
+              spec:
+                storageClassName: "ocs-storagecluster-cephfs"
+                accessModes:
+                  - "ReadWriteMany"
+                resources:
+                  requests:
+                    storage: 50Gi
+
+        - name: configure registry
+          k8s:
+            state: present
+            context: "{{ ocp_cluster_name }}"
+            definition:
+              apiVersion: imageregistry.operator.openshift.io/v1
+              kind: Config
+              metadata:
+                name: cluster
+              spec:
+                managementState: Managed
+                defaultRoute: true
+                replicas: 2
+                storage:
+                  pvc:
+                    claim: registry-pvc
+      delegate_to: localhost
+

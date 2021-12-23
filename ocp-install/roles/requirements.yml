@@ -1,0 +1,6 @@
+- src: https://github.com/camptocamp/ansible-role-ocp-bastion.git
+  scm: git
+  name: ocp-bastion
+- src: https://github.com/camptocamp/ansible-role-ocp-vm-provision.git
+  scm: git
+  name: ocp-vm-provision

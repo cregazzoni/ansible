@@ -1,0 +1,21 @@
+apiVersion: dynatrace.com/v1alpha1
+kind: OneAgent
+metadata:
+  namespace: dynatrace
+  name: oneagent
+spec:
+  apiUrl: https://faa30802.live.dynatrace.com/api
+  skipCertCheck: false
+  tokens: oneagent
+  nodeSelector:
+    beta.kubernetes.io/os: linux
+  args:
+  - APP_LOG_CONTENT_ACCESS=1  
+  tolerations:
+  - effect: NoSchedule
+    key: node.ocs.openshift.io/storage
+    operator: Exists
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/master
+    operator: Exists
+  env: []

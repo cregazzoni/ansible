@@ -1,0 +1,7 @@
+---
+- hosts: bastion
+  become: true
+  vars_files:
+    - ../vault.yml
+  roles:
+    - role: ocp-bastion

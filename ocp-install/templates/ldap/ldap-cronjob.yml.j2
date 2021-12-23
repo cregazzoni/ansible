@@ -1,0 +1,151 @@
+---
+apiVersion: v1
+items:
+- apiVersion: v1
+  data:
+    ldap-group-sync.yaml: "kind: LDAPSyncConfig\napiVersion: v1\nurl: ldap://chgvasrv000.msccruises.com:389\ninsecure:
+      true\nbindDN: \"CN=LdapQuerySvc,OU=administrators,OU=Users,OU=Geneva,OU=_Switzerland,DC=msccruises,DC=com\"\nbindPassword:
+      \n  file: \"/etc/secrets/bind_password\"\naugmentedActiveDirectory:\n  groupsQuery:
+      \n    derefAliases: never\n    pageSize: 0\n  groupUIDAttribute: dn \n  groupNameAttributes:
+      [ cn ] \n  usersQuery:\n    baseDN: \"DC=msccruises,DC=com\"\n    scope: sub\n
+      \   derefAliases: never\n    filter: (objectclass=organizationalPerson)\n    pageSize:
+      0\n  userNameAttributes: [\"sAMAccountName\"]\n  groupMembershipAttributes:
+      [\"memberOf:1.2.840.113556.1.4.1941:\"]\n"
+    whitelist.txt: CN=MSC-DEVOPS-ADMIN,CN=Users,DC=msccruises,DC=com
+  kind: ConfigMap
+  metadata:
+    labels:
+      template: cronjob-ldap-group-sync
+    name: ldap-config
+    namespace: ocp-cluster-ops
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    labels:
+      template: cronjob-ldap-group-sync
+    name: ldap-bind-password
+    namespace: ocp-cluster-ops
+  stringData:
+    bind_password: 3FDFu0o1Bdu4ylz
+  type: Opaque
+- apiVersion: batch/v1
+  kind: Job
+  metadata:
+    labels:
+      template: cronjob-ldap-group-sync
+    name: ldap-first-sync
+    namespace: ocp-cluster-ops
+  spec:
+    completions: 1
+    parallelism: 1
+    template:
+      metadata:
+        name: ldap-first-sync
+      spec:
+        containers:
+        - command:
+          - /bin/bash
+          - -c
+          - oc adm groups sync --sync-config=/etc/config/ldap-group-sync.yaml --confirm
+            $([ -s /etc/config/whitelist.txt ] && echo --whitelist=/etc/config/whitelist.txt)
+          image: registry.access.redhat.com/openshift3/ose-cli:v3.11
+          name: ldap-first-sync
+          volumeMounts:
+          - mountPath: /etc/config
+            name: ldap-sync-volume
+          - mountPath: /etc/secrets
+            name: ldap-bind-password
+        restartPolicy: Never
+        serviceAccount: ldap-group-syncer
+        serviceAccountName: ldap-group-syncer
+        volumes:
+        - configMap:
+            name: ldap-config
+          name: ldap-sync-volume
+        - name: ldap-bind-password
+          secret:
+            secretName: ldap-bind-password
+- apiVersion: batch/v1beta1
+  kind: CronJob
+  metadata:
+    labels:
+      template: cronjob-ldap-group-sync
+    name: cronjob-ldap-group-sync
+    namespace: ocp-cluster-ops
+  spec:
+    concurrencyPolicy: Forbid
+    failedJobsHistoryLimit: 5
+    jobTemplate:
+      spec:
+        backoffLimit: 0
+        template:
+          spec:
+            activeDeadlineSeconds: 500
+            containers:
+            - command:
+              - /bin/bash
+              - -c
+              - oc adm groups sync --sync-config=/etc/config/ldap-group-sync.yaml
+                --confirm $([ -s /etc/config/whitelist.txt ] && echo --whitelist=/etc/config/whitelist.txt)
+              image: registry.access.redhat.com/openshift3/ose-cli:v3.11
+              name: cronjob-ldap-group-sync
+              volumeMounts:
+              - mountPath: /etc/config
+                name: ldap-sync-volume
+              - mountPath: /etc/secrets
+                name: ldap-bind-password
+            dnsPolicy: ClusterFirst
+            restartPolicy: Never
+            serviceAccount: ldap-group-syncer
+            serviceAccountName: ldap-group-syncer
+            terminationGracePeriodSeconds: 30
+            volumes:
+            - configMap:
+                name: ldap-config
+              name: ldap-sync-volume
+            - name: ldap-bind-password
+              secret:
+                secretName: ldap-bind-password
+    schedule: '*/30 6-20 * * MON-FRI'
+    successfulJobsHistoryLimit: 5
+- apiVersion: authorization.openshift.io/v1
+  kind: ClusterRole
+  metadata:
+    labels:
+      template: cronjob-ldap-group-sync
+    name: ldap-group-syncer
+    namespace: ocp-cluster-ops
+  rules:
+  - apiGroups:
+    - ""
+    - user.openshift.io
+    resources:
+    - groups
+    verbs:
+    - get
+    - list
+    - create
+    - update
+- apiVersion: authorization.openshift.io/v1
+  groupNames: null
+  kind: ClusterRoleBinding
+  metadata:
+    labels:
+      template: cronjob-ldap-group-sync
+    name: system:ldap-group-syncers
+  roleRef:
+    name: ldap-group-syncer
+  subjects:
+  - kind: ServiceAccount
+    name: ldap-group-syncer
+  userNames:
+  - system:serviceaccount:ocp-cluster-ops:ldap-group-syncer
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    labels:
+      template: cronjob-ldap-group-sync
+    name: ldap-group-syncer
+    namespace: ocp-cluster-ops
+kind: List
+metadata: {}

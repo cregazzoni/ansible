@@ -1,0 +1,65 @@
+---
+- hosts: masters[0]
+  gather_facts: no
+  tasks:
+    - block:
+        - name: Create project 
+          k8s: 
+            state: present
+            context: "{{ ocp_cluster_name }}"            
+            definition:
+              apiVersion: v1
+              kind: Namespace
+              metadata:
+                name: ocp-cluster-ops
+        - name: Create LDAP oAuth secret
+          k8s:
+            state: present
+            context: "{{ ocp_cluster_name }}"            
+            definition:
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                  name: ldap-secret
+                  namespace: openshift-config
+              data:
+                bindPassword: M0ZERnUwbzFCZHU0eWx6
+              type: Opaque
+        - name: Configure LDAP method
+          k8s:
+            state: present
+            context: "{{ ocp_cluster_name }}"            
+            definition: "{{ lookup('file','../files/ldap/oauth_ldap.yml') }}"
+        - name: Configure LDAP Sync
+          k8s:
+            state: present
+            context: "{{ ocp_cluster_name }}"            
+            definition: "{{ lookup('template','../templates/ldap/ldap-cronjob.yml.j2') }}"
+        - name: Delete htpasswd authentication methods
+          k8s:
+            state: absent
+            context: "{{ ocp_cluster_name }}"            
+            definition:
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: kubeadmin
+                namespace: kube-system
+        - name: Set the cluster admins
+          k8s:
+            state: present
+            context: "{{ ocp_cluster_name }}"            
+            definition:
+              kind: ClusterRoleBinding
+              apiVersion: rbac.authorization.k8s.io/v1
+              metadata:
+                name: cluster-admin-1
+              subjects:
+                - kind: Group
+                  apiGroup: rbac.authorization.k8s.io
+                  name: MSC-DEVOPS-ADMIN
+              roleRef:
+                apiGroup: rbac.authorization.k8s.io
+                kind: ClusterRole
+                name: cluster-admin
+      delegate_to: localhost                

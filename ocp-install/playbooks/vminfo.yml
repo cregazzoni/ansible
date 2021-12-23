@@ -1,0 +1,35 @@
+---
+- hosts: bootstrap,masters,workers,infras,support,storage
+  gather_facts: false
+  vars_files:
+    - ../vault.yml
+  tasks:
+    - name: Get VM data
+      vmware_guest_facts:
+        hostname: "{{ vcenter_provision_hostname }}"
+        username: "{{ vcenter_provision_username }}"
+        password: "{{ vcenter_provision_password }}"
+        validate_certs: no
+        datacenter: "{{ vcenter_provision_datacenter }}"
+        folder: "{{ vcenter_provision_folder }}"
+        name: "{{ inventory_hostname_short }}"
+
+      register: vm_data
+      delegate_to: localhost
+    - name: get disk info
+      vmware_guest_disk_info:
+        hostname: "{{ vcenter_provision_hostname }}"
+        username: "{{ vcenter_provision_username }}"
+        password: "{{ vcenter_provision_password }}"
+        validate_certs: no
+        datacenter: "{{ vcenter_provision_datacenter }}"
+        folder: "{{ vcenter_provision_folder }}"
+        name: "{{ inventory_hostname_short }}"
+      delegate_to: localhost
+      register: disk_info
+    - debug:
+        var: disk_info
+    - debug:
+        msg: "{{ inventory_hostname }} : {{ vm_data.instance.hw_eth0.macaddress }}"
+
+      

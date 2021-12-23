@@ -1,0 +1,35 @@
+---
+- hosts: workers
+  gather_facts: no
+  tasks:
+    - block:
+        - name: Add label
+          k8s: 
+            state: present
+            context: "{{ ocp_cluster_name }}"
+            definition:
+              apiVersion: v1
+              kind: Node
+              metadata:
+                name: "{{ inventory_hostname }}"
+                labels:
+                  type: "worker"
+                  node-role.kubernetes.io/worker: ''
+                  region: "{{ region }}"
+      delegate_to: localhost
+- hosts: masters[0]
+  gather_facts: no
+  tasks:
+    - block:
+        - name: Configure Scheduler
+          k8s: 
+            state: present
+            context: "{{ ocp_cluster_name }}"
+            definition:
+              apiVersion: config.openshift.io/v1
+              kind: Scheduler
+              metadata:
+                name: cluster
+              spec:
+                defaultNodeSelector: type=worker
+      delegate_to: localhost
